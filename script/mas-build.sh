@@ -111,7 +111,24 @@ XML
 # script/mas-installer-keychain.sh to create it once.
 INSTALLER_KC=${GLANCE_INSTALLER_KEYCHAIN:-$HOME/.appstoreconnect/mas-signing.keychain-db}
 [[ -f $INSTALLER_KC ]] || { echo "mas-build: no installer keychain at $INSTALLER_KC (run script/mas-installer-keychain.sh)" >&2; exit 1; }
-security unlock-keychain -p "${GLANCE_INSTALLER_KEYCHAIN_PASSWORD:-}" "$INSTALLER_KC"
+
+# The password comes from the environment when set, and otherwise from a login
+# keychain item, so it never sits in this file or in a dotfile. Store it once:
+#
+#   security add-generic-password -a "$USER" -s glance-installer-keychain \
+#     -w "$GLANCE_INSTALLER_KEYCHAIN_PASSWORD" -U -T /usr/bin/security
+INSTALLER_PASS=${GLANCE_INSTALLER_KEYCHAIN_PASSWORD:-}
+if [[ -z $INSTALLER_PASS ]]; then
+  INSTALLER_PASS=$(security find-generic-password -s glance-installer-keychain -w 2>/dev/null || true)
+fi
+[[ -n $INSTALLER_PASS ]] || {
+  echo "mas-build: no installer keychain password" >&2
+  echo "  set GLANCE_INSTALLER_KEYCHAIN_PASSWORD, or store it in the login keychain:" >&2
+  echo "  security add-generic-password -a \"\$USER\" -s glance-installer-keychain -w PASSWORD -U -T /usr/bin/security" >&2
+  exit 1
+}
+security unlock-keychain -p "$INSTALLER_PASS" "$INSTALLER_KC"
+unset INSTALLER_PASS
 
 echo "mas-build: signing product"
 productbuild --distribution "$DISTDIR/distribution.xml" --package-path "$DISTDIR" \

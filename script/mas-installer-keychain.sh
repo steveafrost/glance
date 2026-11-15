@@ -57,10 +57,15 @@ security find-identity -v -p basic "$KC"
 
 cat <<EOF
 
-Add these to the build environment:
+Store the password once so mas-build.sh finds it without an environment
+variable (GLANCE_INSTALLER_KEYCHAIN_PASSWORD still takes precedence):
+
+  security add-generic-password -a "\$USER" -s glance-installer-keychain \\
+    -w '$KPASS' -U -T /usr/bin/security
+
+The keychain is at:
 
   GLANCE_INSTALLER_KEYCHAIN=$KC
-  GLANCE_INSTALLER_KEYCHAIN_PASSWORD=$KPASS
 
 Then script/mas-build.sh signs without prompting.
 EOF

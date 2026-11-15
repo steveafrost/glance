@@ -148,7 +148,13 @@ All of this is in the developer portal and App Store Connect, done once:
   From the login keychain, `productsign` blocks in
   `SecurityServer::generateSignature` on a GUI prompt that no unattended build
   can answer. A keychain with a known password and a partition list avoids it.
-  `mas-build.sh` reads `GLANCE_INSTALLER_KEYCHAIN_PASSWORD`.
+  `mas-build.sh` takes the password from `GLANCE_INSTALLER_KEYCHAIN_PASSWORD`,
+  or from a login keychain item when that is unset. Store it once:
+
+  ```sh
+  security add-generic-password -a "$USER" -s glance-installer-keychain \
+    -w "$GLANCE_INSTALLER_KEYCHAIN_PASSWORD" -U -T /usr/bin/security
+  ```
 - **App record** in App Store Connect. The API refuses to create this one
   (`apps` allows only GET and UPDATE), so it has to be made in the web UI.
 - **Paid Apps agreement** active, or a $0.99 tier cannot be selected.
