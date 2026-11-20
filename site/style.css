@@ -264,6 +264,11 @@ h2 {
   margin: 1rem 0 0;
 }
 
+/* The section headings are capped at 20ch so they break into two lines. This one
+   is 30 characters, so the cap dropped just the last word at every desktop
+   width. 36ch fits it on one line and still caps a longer heading later. */
+.features h2 { max-width: 36ch; }
+
 .features .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
