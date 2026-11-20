@@ -125,7 +125,16 @@ the notes file from `dist/`.
 
 There is no notarization step and no appcast: the App Store signs, hosts and
 updates the app. `notarize.sh`, `generate_appcast` and the EdDSA key are gone
-with the direct download they existed for.
+with the direct download they existed for. The `appcast.xml` still attached to
+the 1.0.3 GitHub release is an empty channel for that reason — old Sparkle
+builds poll it, find nothing, and stay put.
+
+Store version strings and git tags are not the same number, and cannot be made
+the same retroactively: Apple fixes the version string at approval and refuses
+to edit it while the version is `READY_FOR_SALE`. The first release is store
+version **1.0**, build 1.0.0 (1), cut from `06c59f1` and tagged **v1.0.4** — the
+tag counts every build of the script, the store counts submissions. From the
+next release on, tag what you ship and the two agree.
 
 ### One-time store setup
 
